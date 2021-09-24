@@ -2,6 +2,7 @@
 #define PID_H
 
 #include <Arduino.h>
+#include "TeensyThreads.h"
 
 // heater pin
 #define PWM_PIN 28

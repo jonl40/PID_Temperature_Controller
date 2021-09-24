@@ -38,7 +38,7 @@ PID::PID(float KpPID, float kiPID, float KdPID,
 
 
 void PID::control(float measure)
-{
+{ 
   float error = setpoint - measure;
 
   float proportional = kp * error; 
@@ -68,13 +68,13 @@ void PID::control(float measure)
   // store to be used as prev values in next iteration 
   prevError = error;
   prevMeasure = measure;
-}
+} 
 
 
 int PID::out()
 {
   return int(controlSignal);
-}
+} 
 
 
 Heater::Heater(int pinNum)

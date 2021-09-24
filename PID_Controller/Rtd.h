@@ -16,7 +16,7 @@
 
 // log data 
 #define RTD_CSV_NAME    "RTD.csv"
-#define RTD_HEADER_CSV  "DateTime,RTD1_(C),RTD2_(C),RTD3_(C)\n"
+#define RTD_HEADER_CSV  "DateTime,RTD1_(C),RTD2_(C),RTD3_(C),PWM\n"
 
 // Period for polling sensor data 
 #define RTD_SAMPLE_PERIOD 1000

@@ -15,6 +15,7 @@ struct rtd
   float t1; 
   float t2;
   float t3;
+  int   pulseWidthModulation; 
   bool error;
 };
 

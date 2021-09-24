@@ -138,7 +138,7 @@ void PollRTD()
 {
 
   float t1, t2, t3;
-  String date; 
+  String date = "orange"; 
   
   while(true)
   {
@@ -151,7 +151,7 @@ void PollRTD()
     pid.control(t3);
     int pidOutput = pid.out();
     heat.pwm(pidOutput);
-
+  
     // serial plotter 
     Serial.print(t1);
     Serial.print("\t");
@@ -162,7 +162,12 @@ void PollRTD()
     Serial.println(pidOutput);
    
     date = TimeStr();
-    struct rtd temps = {date,t1,t2,t3,false};
+    struct rtd temps = {date, t1, t2, t3, pidOutput, false};
+
+
+    //Serial.print("                    date: ");
+    //Serial.println(temps.date);
+    
     rtd_queue.enqueue(temps);
     threads.delay(RTD_SAMPLE_PERIOD);
     threads.yield();
@@ -173,8 +178,8 @@ void PollRTD()
 void LogRTD(const char *csvName)
 {
     struct rtd temps = rtd_queue.dequeue();
-    if(temps.error == false)
-    {
+    if(temps.error == false && temps.date != "-1")
+    {      
       // log data 
       File dataFile = SD.open(csvName, FILE_WRITE);
       // if the file is available, write to it:
@@ -188,10 +193,10 @@ void LogRTD(const char *csvName)
         dataFile.print(temps.t2);
         dataFile.print(",");
         dataFile.print(temps.t3);
+        dataFile.print(",");
+        dataFile.print(temps.pulseWidthModulation);
         dataFile.print("\n");
         dataFile.close();
-  
-        //Serial.println("                  Logging RTD !!!");  
       }
       // if the file isn't open, pop up an error:
       else 
