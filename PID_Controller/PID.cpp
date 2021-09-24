@@ -2,7 +2,7 @@
 
 PID::PID(float KpPID, float kiPID, float KdPID,
          float TauPID,
-         float integratorMaxPID, float integratorMinPID,
+         float integrateMaxPID, float integrateMinPID,
          float outMaxPID, float outMinPID,
          float SampleTime,
          float spPID)
@@ -16,8 +16,8 @@ PID::PID(float KpPID, float kiPID, float KdPID,
   tau = TauPID;
 
   // integral limits to negate integrator wind up 
-  integralMax = integratorMaxPID; 
-  integralMin = integratorMinPID;
+  integralMax = integrateMaxPID; 
+  integralMin = integrateMinPID;
 
   // output limits 
   outputMax = outMaxPID;
@@ -37,7 +37,7 @@ PID::PID(float KpPID, float kiPID, float KdPID,
 }
 
 
-float PID::control(float measure)
+void PID::control(float measure)
 {
   float error = setpoint - measure;
 
@@ -64,6 +64,16 @@ float PID::control(float measure)
   {
     controlSignal = outputMin;
   }
+
+  // store to be used as prev values in next iteration 
+  prevError = error;
+  prevMeasure = measure;
+}
+
+
+int PID::out()
+{
+  return int(controlSignal);
 }
 
 

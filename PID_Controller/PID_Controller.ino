@@ -20,6 +20,15 @@ Adafruit_MAX31865 thermo2 = Adafruit_MAX31865(CS_PIN2);
 Adafruit_MAX31865 thermo3 = Adafruit_MAX31865(CS_PIN3);
 
 
+Heater heat(PWM_PIN);
+PID pid(KP_PID, kI_PID, KD_PID,
+        TAU_PID,
+        INTEGRATE_MAX_PID, INTEGRATE_MIN_PID,
+        OUT_MAX_PID, OUT_MIN_PID,
+        SAMPLE_TIME,
+        SP_PID);
+
+
 // wrap around after 50 days
 uint32_t RTD_TIME = 0; 
 
@@ -120,6 +129,7 @@ void loop()
     RTD_TIME += RTD_SAMPLE_PERIOD;
   }
   
+
 }
 
 
@@ -137,13 +147,20 @@ void PollRTD()
     t2 = GetTemp(&thermo2);
     t3 = GetTemp(&thermo3);
 
+    // control heater 
+    pid.control(t3);
+    int pidOutput = pid.out();
+    heat.pwm(pidOutput);
+
     // serial plotter 
-    //Serial.print(t1);
-    //Serial.print("\t");
-    //Serial.print(t2);
-    //Serial.print("\t");
-    Serial.println(t3);
-    
+    Serial.print(t1);
+    Serial.print("\t");
+    Serial.print(t2);
+    Serial.print("\t");
+    Serial.print(t3);
+    Serial.print("\t");
+    Serial.println(pidOutput);
+   
     date = TimeStr();
     struct rtd temps = {date,t1,t2,t3,false};
     rtd_queue.enqueue(temps);

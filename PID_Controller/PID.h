@@ -3,19 +3,39 @@
 
 #include <Arduino.h>
 
+// heater pin
+#define PWM_PIN 28
+
+
+// pid constants 
+#define KP_PID              0.1f
+#define kI_PID              0.1f
+#define KD_PID              0.1f
+#define TAU_PID             0.01f
+#define INTEGRATE_MAX_PID   128.0f
+#define INTEGRATE_MIN_PID   0.0f
+#define OUT_MAX_PID         255.0f
+#define OUT_MIN_PID         0.0f  
+#define SAMPLE_TIME         1000.0f
+#define SP_PID              30.0f
+
+
 class PID
 {
   public:
     // PID constructor init values
     PID(float KpPID, float kiPID, float KdPID,
         float TauPID,
-        float integratorMaxPID, float integratorMinPID,
+        float integrateMaxPID, float integrateMinPID,
         float outMaxPID, float outMinPID,
         float SampleTime,
         float spPID);
 
     // compute control signal given current measurement 
-    float control(float measure);
+    void control(float measure);
+
+    // return integer controlSignal (pwm takes integer values)
+    int out();
 
   private:
     // pid coefficients 
