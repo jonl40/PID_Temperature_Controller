@@ -19,7 +19,7 @@
 #define RTD_HEADER_CSV  "DateTime,RTD1_(C),RTD2_(C),RTD3_(C),PWM\n"
 
 // Period for polling sensor data 
-#define RTD_SAMPLE_PERIOD 1000
+#define RTD_SAMPLE_PERIOD 1000.0f
 
 float GetTemp(Adafruit_MAX31865 *thermo);
 String TimeStr();

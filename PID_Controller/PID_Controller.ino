@@ -8,10 +8,16 @@
 #include "PID.h"
 
 #include "TeensyThreads.h"
-#include "ICM_20948.h"  // Click here to get the library: http://librarymanager/All#SparkFun_ICM_20948_IMU
 #include <Adafruit_MAX31865.h>
 #include <SD.h>
 #include <TimeLib.h>
+
+
+// wrap around after 50 days
+uint32_t RTD_TIME = 0; 
+
+#define ENABLE_SD_CARD  true
+#define ENABLE_RTD      true 
 
 
 // Adafruit_MAX31865 RTD 
@@ -20,17 +26,17 @@ Adafruit_MAX31865 thermo2 = Adafruit_MAX31865(CS_PIN2);
 Adafruit_MAX31865 thermo3 = Adafruit_MAX31865(CS_PIN3);
 
 
+// heater 
 Heater heat(PWM_PIN);
+
+
+// pid controller 
 PID pid(KP_PID, kI_PID, KD_PID,
         TAU_PID,
         INTEGRATE_MAX_PID, INTEGRATE_MIN_PID,
         OUT_MAX_PID, OUT_MIN_PID,
         SAMPLE_TIME,
         SP_PID);
-
-
-// wrap around after 50 days
-uint32_t RTD_TIME = 0; 
 
 
 // queue for polling and logging sensor data 
@@ -103,10 +109,10 @@ void setup()
 {
   Serial.begin(115200);
 
-  bool rtd_is_initialized = Init_RTD(true);
+  bool rtd_is_initialized = Init_RTD(ENABLE_RTD);
   // wait for 1.5 sec
   delay(1500);
-  InitSdCard(true); 
+  InitSdCard(ENABLE_SD_CARD); 
 
   // create thread to poll RTD 
   if (rtd_is_initialized)
@@ -129,16 +135,16 @@ void loop()
     RTD_TIME += RTD_SAMPLE_PERIOD;
   }
   
-
 }
 
 
-
+// sample rtd and input 
 void PollRTD()
 {
 
   float t1, t2, t3;
-  String date = "orange"; 
+  String date; 
+  int pidOutput;
   
   while(true)
   {
@@ -148,8 +154,7 @@ void PollRTD()
     t3 = GetTemp(&thermo3);
 
     // control heater 
-    pid.control(t3);
-    int pidOutput = pid.out();
+    pidOutput = pid.control(t3);
     heat.pwm(pidOutput);
   
     // serial plotter 
@@ -164,10 +169,6 @@ void PollRTD()
     date = TimeStr();
     struct rtd temps = {date, t1, t2, t3, pidOutput, false};
 
-
-    //Serial.print("                    date: ");
-    //Serial.println(temps.date);
-    
     rtd_queue.enqueue(temps);
     threads.delay(RTD_SAMPLE_PERIOD);
     threads.yield();
@@ -182,6 +183,7 @@ void LogRTD(const char *csvName)
     {      
       // log data 
       File dataFile = SD.open(csvName, FILE_WRITE);
+      
       // if the file is available, write to it:
       if (dataFile) 
       {

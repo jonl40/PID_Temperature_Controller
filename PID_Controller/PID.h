@@ -7,14 +7,24 @@
 // heater pin
 #define PWM_PIN 28
 
+/*
+ * 
+ * Set Kp to 0 to remove proportional component of PID controller 
+ * Set Ki to 0 to remove integral component of PID controller 
+ * Set Kd to 0 to remove derivative component of PID controller 
+ * Set tau to 0 to remove low pass filter
+ * SP_PID is setpoint you want system to reach 
+ * 
+ */
+ 
 
 // pid constants 
 #define KP_PID              0.1f
-#define kI_PID              0.1f
-#define KD_PID              0.1f
-#define TAU_PID             0.01f
+#define kI_PID              0.03f
+#define KD_PID              0.01f
+#define TAU_PID             0.01f 
 #define INTEGRATE_MAX_PID   128.0f
-#define INTEGRATE_MIN_PID   0.0f
+#define INTEGRATE_MIN_PID   -5.0f
 #define OUT_MAX_PID         255.0f
 #define OUT_MIN_PID         0.0f  
 #define SAMPLE_TIME         1000.0f
@@ -33,12 +43,18 @@ class PID
         float spPID);
 
     // compute control signal given current measurement 
-    void control(float measure);
-
     // return integer controlSignal (pwm takes integer values)
-    int out();
+    int control(float measure);
+
 
   private:
+
+    // negate integral windup 
+    void LimitIntegral();
+
+    // limit control signal output 
+    void LimitPidOutput();
+  
     // pid coefficients 
     float kp;
     float ki;
