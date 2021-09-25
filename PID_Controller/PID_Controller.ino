@@ -18,6 +18,7 @@ uint32_t RTD_TIME = 0;
 
 #define ENABLE_SD_CARD  true
 #define ENABLE_RTD      true 
+#define SERIAL_MONITOR  true 
 
 
 // Adafruit_MAX31865 RTD 
@@ -70,7 +71,7 @@ void LogToCSV(String dataString, const char* csvName)
   }
   // if the file isn't open, pop up an error:
   else {
-    Serial.println("error opening file");
+    //Serial.println("error opening file");
   }
 }
 
@@ -158,13 +159,16 @@ void PollRTD()
     heat.pwm(pidOutput);
   
     // serial plotter 
-    Serial.print(t1);
-    Serial.print("\t");
-    Serial.print(t2);
-    Serial.print("\t");
-    Serial.print(t3);
-    Serial.print("\t");
-    Serial.println(pidOutput);
+    if (SERIAL_MONITOR)
+    {
+      Serial.print(t1);
+      Serial.print("\t");
+      Serial.print(t2);
+      Serial.print("\t");
+      Serial.print(t3);
+      Serial.print("\t");
+      Serial.println(pidOutput);
+    }
    
     date = TimeStr();
     struct rtd temps = {date, t1, t2, t3, pidOutput, false};
@@ -202,6 +206,8 @@ void LogRTD(const char *csvName)
       }
       // if the file isn't open, pop up an error:
       else 
-        Serial.println("error opening RTD_CSV_NAME");
+      {
+        //Serial.println("error opening RTD_CSV_NAME");
+      }
     }
 } 
